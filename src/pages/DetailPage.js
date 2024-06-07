@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Button from '../components/Button';
-import { useParams } from 'react-router-dom'; // Import useParams
+import { useNavigate, useParams } from 'react-router-dom';
+import Loading from '../components/Loading';
 
 const DetailPage = () => {
-  const { name } = useParams(); // Lấy tên Pokémon từ URL
-  const [searchTerm, setSearchTerm] = useState(name || ''); // Đặt tên Pokémon từ URL vào state
+  const { name } = useParams(); 
+  const [searchTerm, setSearchTerm] = useState(name || ''); 
   const [pokemonData, setPokemonData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const Navigate = useNavigate();
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
@@ -32,7 +34,6 @@ const DetailPage = () => {
         evolutionChainUrl: speciesDataResponse.data.evolution_chain.url,
         locations: speciesDataResponse.data.habitat.name,
       };
-
       setPokemonData(pokemonDetails);
     } catch (error) {
       console.error('Error fetching Pokemon:', error);
@@ -48,6 +49,9 @@ const DetailPage = () => {
     }
   }, [name]);
 
+  const handleTypeClick = (type) => {
+    Navigate(`/category/${type}`);
+  };
   return (
     <div className="container mx-auto text-center p-4">
       <div className="flex flex-col items-center">
@@ -59,7 +63,7 @@ const DetailPage = () => {
           onChange={handleSearchChange}
         />
         <Button onClick={handleSearchSubmit}>Tìm kiếm</Button>
-        {isLoading && <p>Đang tải...</p>}
+        {isLoading && <Loading/>}
         {error && <p className="text-red-500">{error}</p>}
       </div>
 
@@ -86,8 +90,9 @@ const DetailPage = () => {
             <div className="flex">
               <p className="font-bold text-xl" >Hệ:</p>
               {pokemonData.types.map((type) => (
-                <p key={type.type.name} className="text-green-600 text-3xl font-bold items-start">
+                <p key={type.type.name} className="text-green-600 text-xl font-bold items-start mr-3 cursor-pointer" onClick={() => handleTypeClick(type.type.name)}>
                   {type.type.name}
+                  
                 </p>
               ))}
             </div>

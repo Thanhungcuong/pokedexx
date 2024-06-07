@@ -1,10 +1,20 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 
-const CardPokemon = ({ name, imageUrl, url, onClick }) => {
+const CardPokemon = ({ name, imageUrl, url, types }) => {
+  const Navigate = useNavigate();
   const id = url.split('/')[6];
+  
+  const handleCardClick = () => {
+    Navigate(`/detail/${name}`);
+  };
+
+  const handleTypeClick = (type) => {
+    Navigate(`/category/${type}`);
+  };
 
   return (
-    <div className="bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-md p-4 cursor-pointer flex" onClick={onClick}>
+    <div className="bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-md p-4 cursor-pointer flex mb-5" onClick={handleCardClick}>
       <img
         src={imageUrl}
         alt={name}
@@ -16,6 +26,20 @@ const CardPokemon = ({ name, imageUrl, url, onClick }) => {
       <div className="">
         <p className="text-gray-600 text-xl text-center">ID: {id}</p>
         <p className="text-center text-xl font-bold">{name}</p>
+        <div className="flex flex-wrap justify-center mt-2">
+          {types.map((typeInfo) => (
+            <span
+              key={typeInfo.type.name}
+              className="bg-green-200 text-green-800 rounded px-2 py-1 m-1 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleTypeClick(typeInfo.type.name);
+              }}
+            >
+              {typeInfo.type.name}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
