@@ -51,7 +51,7 @@ const MainLayout = () => {
                   Category
                 </button>
                 {dropdownOpen && (
-                  <ul className='absolute bg-white text-black rounded-md mt-2 p-2 shadow-lg'>
+                  <ul className='absolute bg-white text-black rounded-md mt-2 p-2 shadow-lg max-h-60 overflow-y-auto'>
                     {types.map(type => (
                       <li key={type.name} className='p-2 hover:bg-gray-200 cursor-pointer' onClick={() => handleTypeClick(type.name)}>
                         {type.name}
@@ -65,7 +65,7 @@ const MainLayout = () => {
         </nav>
       </header>
 
-      <main className='h-full'>
+      <main className='h-full min-h-screen'>
         <Outlet />
       </main>
 
