@@ -10,6 +10,7 @@ const CategoryPage = () => {
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { type } = useParams();
+  const [moveType, setMoveType] = useState('All');
 
   const fetchPokemonByType = async (page, limit) => {
     setIsLoading(true);
@@ -26,11 +27,13 @@ const CategoryPage = () => {
         selectedPokemon.map(async (pokemonObj) => {
           const url = pokemonObj.pokemon.url;
           const response = await axios.get(url);
+          const moveResponse = await axios.get(response.data.moves[0].move.url);
           return {
             name: response.data.name,
             imageUrl: response.data.sprites.front_default,
             url: url,
-            types: response.data.types
+            types: response.data.types,
+            moveType: moveResponse.data.damage_class.name
           };
         })
       );
@@ -62,6 +65,7 @@ const CategoryPage = () => {
               imageUrl={pokemon.imageUrl}
               url={pokemon.url}
               types={pokemon.types}
+              moveType={pokemon.moveType} 
             />
           ))}
         </div>
