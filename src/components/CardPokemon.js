@@ -1,16 +1,16 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 
-const CardPokemon = ({ name, imageUrl, url, types }) => {
-  const Navigate = useNavigate();
+const CardPokemon = ({ name, imageUrl, url, types, moveType }) => {
+  const navigate = useNavigate();
   const id = url.split('/')[6];
   
   const handleCardClick = () => {
-    Navigate(`/detail/${name}`);
+    navigate(`/detail/${name}`);
   };
 
   const handleTypeClick = (type) => {
-    Navigate(`/category/${type}`);
+    navigate(`/category/${type}`);
   };
 
   return (
@@ -26,6 +26,7 @@ const CardPokemon = ({ name, imageUrl, url, types }) => {
       <div className="">
         <p className="text-gray-600 text-xl text-center">ID: {id}</p>
         <p className="text-center text-xl font-bold">{name}</p>
+        <p className="text-center text-lg font-semibold">Move Type: {moveType}</p>
         <div className="flex flex-wrap justify-center mt-2">
           {types.map((typeInfo) => (
             <span
