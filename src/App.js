@@ -3,9 +3,9 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import MainLayoyut from './layouts/mainLayoyut';
 import LandingPage from './pages/LandingPage';
-import SearchPage from './pages/SearchPage';
 import DetailPage from './pages/DetailPage';
 import CategoryPage from './pages/CategoryPage';
+import LocationPage from './pages/LocationPage';
 
 
 function App() {
@@ -15,10 +15,9 @@ function App() {
         <Routes>
           <Route path="/" element={<MainLayoyut />}>
             <Route index element={<LandingPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path='/detail' element={<DetailPage />} />
             <Route path="/detail/:name" element={<DetailPage />} />
             <Route path='/category/:type' element={<CategoryPage />} />
+            <Route path="/location/:location" element={<LocationPage />} />
           </Route>
         </Routes>
       </Router>

@@ -5,18 +5,17 @@ import Pagination from '../components/Pagination';
 import { useParams } from 'react-router-dom';
 import Loading from '../components/Loading';
 
-const CategoryPage = () => {
+const LocationPage = () => {
   const [pokemonList, setPokemonList] = useState([]);
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const { type } = useParams();
-  const [moveType, setMoveType] = useState('All');
+  const { location } = useParams();
 
-  const fetchPokemonByType = async (page, limit) => {
+  const fetchPokemonByLocation = async (page, limit) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`https://pokeapi.co/api/v2/type/${type}`);
-      const pokemonData = response.data.pokemon;
+      const response = await axios.get(`https://pokeapi.co/api/v2/pokemon-habitat/${location}`);
+      const pokemonData = response.data.pokemon_species;
       const countPokemon = pokemonData.length;
       setCount(countPokemon);
 
@@ -25,13 +24,15 @@ const CategoryPage = () => {
 
       const pokemonListData = await Promise.all(
         selectedPokemon.map(async (pokemonObj) => {
-          const url = pokemonObj.pokemon.url;
+          const url = `https://pokeapi.co/api/v2/pokemon/${pokemonObj.name}`;
           const response = await axios.get(url);
-          const moveResponse = await axios.get(response.data.moves[0].move.url);
+          const moveResponse = response.data.moves.length > 0 
+            ? await axios.get(response.data.moves[0].move.url) 
+            : { data: { damage_class: { name: 'unknown' }}};
           return {
             name: response.data.name,
             imageUrl: response.data.sprites.front_default,
-            url: url,
+            url: pokemonObj.url,
             types: response.data.types,
             moveType: moveResponse.data.damage_class.name
           };
@@ -39,20 +40,20 @@ const CategoryPage = () => {
       );
       setPokemonList(pokemonListData);
     } catch (error) {
-      console.error('Error fetching Pokémon by type:', error);
+      console.error('Error fetching Pokémon by location:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPokemonByType(1, 20);
-  }, [type]);
+    fetchPokemonByLocation(1, 20);
+  }, [location]);
 
   return (
     <div className="container mx-auto text-center p-4 mb-20">
       <h1 className='font-bold text-2xl justify-center mb-12'>
-        Pokémon thuộc loại <span className='text-purple-700 text-2xl'>{type.toUpperCase()}</span>
+        Những Pokémon có thể gặp ở <span className='text-purple-700 text-2xl'>{location.toUpperCase()}</span>
       </h1>
       {isLoading && <Loading />}
       {!isLoading && (
@@ -72,10 +73,10 @@ const CategoryPage = () => {
       <Pagination
         totalPokemon={count}
         initialPokemonPerPage={20}
-        onPageChange={fetchPokemonByType}
+        onPageChange={fetchPokemonByLocation}
       />
     </div>
   );
 };
 
-export default CategoryPage;
+export default LocationPage;

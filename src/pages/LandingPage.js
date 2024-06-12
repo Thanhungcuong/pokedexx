@@ -3,7 +3,8 @@ import Pagination from '../components/Pagination';
 import axios from 'axios';
 import CardPokemon from '../components/CardPokemon';
 import Loading from '../components/Loading';
-
+import Button from '../components/Button';
+import { useNavigate } from 'react-router-dom';
 const LandingPage = () => {
   const [allPokemon, setAllPokemon] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -11,8 +12,10 @@ const LandingPage = () => {
   const [totalPokemonCount, setTotalPokemonCount] = useState(0);
   const [filteredPokemonCount, setFilteredPokemonCount] = useState(0);
   const [moveTypeFilter, setMoveTypeFilter] = useState('');
-  const [pokemonPerPage, setPokemonPerPage] = useState(16);
+  const [pokemonPerPage, setPokemonPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTotalPokemonCount = async () => {
@@ -97,15 +100,34 @@ const LandingPage = () => {
 
   const filteredPokemon = applyMoveTypeFilter();
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  const handleSearchSubmit = () => {
+    if (searchTerm) {
+      navigate(`/detail/${searchTerm}`);
+    }
+  }
   return (
     <div className="container mx-auto text-center p-4 mb-20">
-      <h1 className="font-bold text-2xl justify-center">Pokedex</h1>
-      <p className='mb-12'>Có tổng cộng: <span className='font-bold text-3xl text-purple-700'>{filteredPokemonCount}</span> Pokemon</p>
+      <h1 className="font-bold text-3xl justify-center">Pokedex</h1>
       {isLoading && <Loading />}
-      {error && <p className="text-red-500">{error}</p>}
-      {!isLoading && !error && (
-        <div>
-          <div className="mb-4">
+      <div className='flex mb-12'>
+       <div className="flex mr-auto items-center">
+        <input
+          type="text"
+          placeholder="Tìm kiếm Pokemon..."
+          className="border p-2"
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+        <Button onClick={handleSearchSubmit}>Tìm kiếm</Button>
+        {isLoading && <Loading />}
+        {error && <p className="text-red-500">{error}</p>}
+      </div> 
+
+      <div className=" ml-auto">
             Lọc theo move type:
             <select
               className="ml-2 p-2 border border-gray-300 rounded"
@@ -118,6 +140,14 @@ const LandingPage = () => {
               <option value="status">Status</option>
             </select>
           </div>
+      </div>
+      
+
+
+      {error && <p className="text-red-500">{error}</p>}
+      {!isLoading && !error && (
+        <div>
+          
           <div className="grid grid-cols-4 gap-4">
             {filteredPokemon.map((pokemon) => (
               <CardPokemon
@@ -132,15 +162,21 @@ const LandingPage = () => {
           </div>
         </div>
       )}
-      <Pagination
-        totalPokemon={moveTypeFilter ? filteredPokemonCount : totalPokemonCount}
-        initialPokemonPerPage={pokemonPerPage}
-        onPageChange={(page, perPage) => {
-          setCurrentPage(page);
-          setPokemonPerPage(perPage);
-          fetchPokemon(page, perPage, moveTypeFilter);
-        }}
-      />
+      
+  
+  <div className=" text-center">
+    <Pagination
+      totalPokemon={moveTypeFilter ? filteredPokemonCount : totalPokemonCount}
+      initialPokemonPerPage={pokemonPerPage}
+      onPageChange={(page, perPage) => {
+        setCurrentPage(page);
+        setPokemonPerPage(perPage);
+        fetchPokemon(page, perPage, moveTypeFilter);
+      }}
+    />
+  </div>
+
+      
     </div>
   );
 };
