@@ -7,7 +7,6 @@ import DetailPage from './pages/DetailPage';
 import CategoryPage from './pages/CategoryPage';
 import LocationPage from './pages/LocationPage';
 
-
 function App() {
   return (
     <div>

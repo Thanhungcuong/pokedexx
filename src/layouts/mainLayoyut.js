@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import Breadcrumb from '../components/Breadcrumb';
 const MainLayout = () => {
   const [types, setTypes] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -132,6 +132,7 @@ const MainLayout = () => {
       </header>
 
       <main className='h-full min-h-screen'>
+      <Breadcrumb />
         <Outlet />
       </main>
 
