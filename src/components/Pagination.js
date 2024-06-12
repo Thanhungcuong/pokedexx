@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';  
 import Button from './Button';
 
-const Pagination = ({ totalPokemon, initialPokemonPerPage = 16, onPageChange }) => {
+const Pagination = ({ totalPokemon, initialPokemonPerPage = 20, onPageChange }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pokemonPerPage, setPokemonPerPage] = useState(initialPokemonPerPage);
   const [totalPages, setTotalPages] = useState(Math.ceil(totalPokemon / initialPokemonPerPage));
-  const [inputValue, setInputValue] = useState(initialPokemonPerPage);
+
 
   useEffect(() => {
     setTotalPages(Math.ceil(totalPokemon / pokemonPerPage));
@@ -16,16 +17,6 @@ const Pagination = ({ totalPokemon, initialPokemonPerPage = 16, onPageChange }) 
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
     onPageChange(page, pokemonPerPage);
-  };
-
-  const handleInputChange = (e) => {
-    setInputValue(Number(e.target.value));
-  };
-
-  const handleApplyChange = () => {
-    setPokemonPerPage(inputValue);
-    setCurrentPage(1);
-    onPageChange(1, inputValue);
   };
 
   const renderPageNumbers = () => {
@@ -40,23 +31,35 @@ const Pagination = ({ totalPokemon, initialPokemonPerPage = 16, onPageChange }) 
     return pageNumbers;
   };
 
+  const handlePerPageChange = (e) => {
+    const perPage = Number(e.target.value);
+    setPokemonPerPage(perPage);
+    setCurrentPage(1);
+    onPageChange(1, perPage);
+  };
+
   return (
-    <div className="pagination-container mt-4 flex flex-col items-center">
-      <div className="pagination-controls mb-4">
+    <div className="flex justify-between items-center">
+      <p className='flex-1 text-left'>Có tổng cộng: <span className='font-bold'>{totalPokemon}</span> Pokemon</p>
+      <div className="flex-1 text-left">
         <label htmlFor="pokemonPerPage">Pokémon per page: </label>
-        <input
-          type="number"
+        <select
           id="pokemonPerPage"
-          value={inputValue}
-          onChange={handleInputChange}
-          min="1"
+          value={pokemonPerPage}
+          onChange={handlePerPageChange}
           className="border rounded p-1 mx-2"
-        />
-        <Button onClick={handleApplyChange}>Apply</Button>
+        >
+          <option value="20">20</option>
+          <option value="24">24</option>
+          <option value="36">36</option>
+          <option value="40">40</option>
+          <option value="60">60</option>
+        </select>
+        
       </div>
-      <div className="pagination-buttons flex space-x-2">
+      <div className="flex-right text-right flex space-x-2">
         <Button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-          Previous
+          <FaArrowLeft />  
         </Button>
         {renderPageNumbers().map((number, index) =>
           number === '...' ? (
@@ -65,14 +68,14 @@ const Pagination = ({ totalPokemon, initialPokemonPerPage = 16, onPageChange }) 
             <Button
               key={index}
               onClick={() => handlePageChange(number)}
-              className={number === currentPage ? 'font-bold bg-blue-900' : ''}
+              className={number === currentPage ? 'font-bold bg-indigo-900 text-white' : ''}
             >
               {number}
             </Button>
           )
         )}
         <Button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-          Next
+          <FaArrowRight />  
         </Button>
       </div>
     </div>

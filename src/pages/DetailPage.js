@@ -3,6 +3,7 @@ import axios from 'axios';
 import Button from '../components/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import Loading from '../components/Loading';
+import TypeIcon from '../components/TypeIcon';
 
 const DetailPage = () => {
   const { name } = useParams();
@@ -13,9 +14,7 @@ const DetailPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value.toLowerCase());
-  };
+ 
 
   const handleSearchSubmit = async () => {
     if (!searchTerm) return;
@@ -55,8 +54,8 @@ const DetailPage = () => {
         types: response.data.types,
         evolutionChain,
         locations: speciesDataResponse.data.habitat ? speciesDataResponse.data.habitat.name : 'Unknown',
-        moves: response.data.moves.map(move => move.move.name),
-        abilities: response.data.abilities.map(ability => ability.ability.name),
+        moves: response.data.moves.map(move => capitalizeFirstLetter(move.move.name)),
+      abilities: response.data.abilities.map(ability => capitalizeFirstLetter(ability.ability.name)),
       };
 
       setPokemonData(pokemonDetails);
@@ -79,49 +78,46 @@ const DetailPage = () => {
     navigate(`/category/${type}`);
   };
 
+  const handleClickLocation = (location) => {
+    navigate(`/location/${location}`)
+  }
+
   const handleClickEvolution = (name) => {
     navigate(`/detail/${name}`);
     window.location.reload()
   }
+
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   return (
     <div className="container mx-auto text-center p-4">
-      <div className="flex flex-col items-center">
-        <input
-          type="text"
-          placeholder="Tìm kiếm Pokemon..."
-          className="border p-2 mb-4"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-        <Button onClick={handleSearchSubmit}>Tìm kiếm</Button>
-        {isLoading && <Loading />}
-        {error && <p className="text-red-500">{error}</p>}
-      </div>
-
+      {isLoading && <Loading />}
       {pokemonData && (
         <div className="bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-md p-4 mt-10 flex">
           <img
             src={pokemonData.imageUrl}
             alt={pokemonData.name}
-            className="w-1/3 mx-auto"
+            className="w-96 h-96 my-auto mx-auto"
             onError={(e) => {
               e.target.src = 'https://via.placeholder.com/200';
             }}
           />
           <div className="w-1/2 my-auto">
             <h2 className="text-left font-bold text-2xl">
-              Tên: <span className="text-purple-700">{pokemonData.name}</span>
+              Tên: <span className="text-purple-700">{capitalizeFirstLetter(pokemonData.name)}</span>
             </h2>
             <div className="flex flex-col">
               <p className="text-left text-2xl font-bold">Chỉ số:</p>
               {pokemonData.stats.map((stat) => (
                 <p key={stat.stat.name} className="text-left text-3xl text-red-600">
-                  {stat.stat.name}: {stat.base_stat}
+                  {capitalizeFirstLetter(stat.stat.name)}: {stat.base_stat}
                 </p>
               ))}
             </div>
             <div className="flex flex-wrap">
-              <p className="font-bold text-xl">Khả năng đặc biệt:</p>
+              <p className="font-bold text-xl mr-1">Khả năng đặc biệt: </p>
               <p className="text-blue-600 text-xl font-bold items-start mr-3 text-justify">
                 {pokemonData.abilities.join(', ')}
               </p>
@@ -130,30 +126,30 @@ const DetailPage = () => {
             <div className="flex flex-wrap">
               <p className="font-bold text-xl">Chiêu thức:</p>
               <p className="text-cyan-600 text-xl font-bold items-start mr-3 text-justify">
-                {pokemonData.moves.join(', ')}
+                 {pokemonData.moves.join(', ')}
               </p>
             </div>
 
-            <div className="flex">
-              <p className="font-bold text-xl">Hệ:</p>
+            <div className="flex items-center">
+              <p className="font-bold text-xl mr-1">Hệ:</p>
               {pokemonData.types.map((type) => (
-                <p
+                <TypeIcon
                   key={type.type.name}
-                  className="text-green-600 text-xl font-bold items-start mr-3 cursor-pointer"
+                  type={type.type.name}
                   onClick={() => handleTypeClick(type.type.name)}
                 >
                   {type.type.name}
-                </p>
+                </TypeIcon>
               ))}
             </div>
 
-            <p className="text-xl font-bold text-left">
-              Có thể gặp ở: <span className="text-orange-400">{pokemonData.locations}</span>
+            <p className="text-xl font-bold text-left cursor-pointer" onClick={() => handleClickLocation (pokemonData.locations)}>
+              Có thể gặp ở: <span className="text-orange-400">{capitalizeFirstLetter(pokemonData.locations)}</span>
             </p>
 
             {evolutionData.length > 0 && (
         <div className="flex">
-          <p className="text-left font-bold text-2xl">Evolutions:</p> 
+          <p className="text-left font-bold text-xl">Tiến hóa:</p> 
           {evolutionData.map((evolution, index) => (
             <div key={evolution.id} className=" flex items-center cursor-pointer" >
               <div onClick={() => handleClickEvolution(evolution.name)}>
@@ -162,7 +158,7 @@ const DetailPage = () => {
                 alt={evolution.name}
                 className="h-40 w-40 mx-auto"
               />
-              <p className="text-pink-600 text-xl font-bold">{evolution.name}</p>
+              <p className="text-pink-600 text-xl font-bold">{capitalizeFirstLetter(evolution.name)}</p>
               
               </div>
               {index < evolutionData.length - 1 && <p className="text-xl mx-2">→</p>}
