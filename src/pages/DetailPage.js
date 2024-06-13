@@ -13,8 +13,6 @@ const DetailPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
- 
-
   const handleSearchSubmit = async () => {
     if (!searchTerm) return;
 
@@ -54,7 +52,7 @@ const DetailPage = () => {
         evolutionChain,
         locations: speciesDataResponse.data.habitat ? speciesDataResponse.data.habitat.name : 'Unknown',
         moves: response.data.moves.map(move => capitalizeFirstLetter(move.move.name)),
-      abilities: response.data.abilities.map(ability => capitalizeFirstLetter(ability.ability.name)),
+        abilities: response.data.abilities.map(ability => capitalizeFirstLetter(ability.ability.name)),
       };
 
       setPokemonData(pokemonDetails);
@@ -74,11 +72,11 @@ const DetailPage = () => {
   }, [name]);
 
   const handleTypeClick = (type) => {
-    navigate(`/category/${type}`);
+    navigate(`/detail/${name}/category/${type}`);
   };
 
   const handleClickLocation = (location) => {
-    navigate(`/location/${location}`)
+    navigate(`/detail/${name}/location/${location}`)
   }
 
   const handleClickEvolution = (name) => {
@@ -87,8 +85,9 @@ const DetailPage = () => {
   }
 
   const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
     return string.charAt(0).toUpperCase() + string.slice(1);
-  };
+};
 
   return (
     <div className="container mx-auto text-center p-4">
@@ -168,8 +167,6 @@ const DetailPage = () => {
           </div>
         </div>
       )}
-
-      
     </div>
   );
 };

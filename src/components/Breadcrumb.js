@@ -7,7 +7,7 @@ const Breadcrumb = () => {
 
     const breadcrumbNameMap = {
         '/': 'Home',
-        '/category/type': 'Type',
+        '/category': 'Category',
         '/location': 'Location'
     };
 
@@ -15,9 +15,9 @@ const Breadcrumb = () => {
     const isLocationPage = pathnames.includes('location');
     const isCategoryPage = pathnames.includes('category');
 
-    const pokemonName = isDetailPage ? pathnames[pathnames.length - 1] : null;
-    const locationName = isLocationPage ? pathnames[pathnames.length - 1] : null;
-    const categoryName = isCategoryPage ? pathnames[pathnames.length - 1] : null;
+    const pokemonName = isDetailPage ? pathnames[pathnames.indexOf('detail') + 1] : null;
+    const locationName = isLocationPage ? pathnames[pathnames.indexOf('location') + 1] : null;
+    const categoryName = isCategoryPage ? pathnames[pathnames.indexOf('category') + 1] : null;
 
     return (
         <nav aria-label="breadcrumb" className="bg-gray-100 p-3 rounded-md w-full">
@@ -26,9 +26,24 @@ const Breadcrumb = () => {
                     <Link to="/" className="text-blue-600 hover:text-blue-700">Home</Link>
                 </li>
                 {isDetailPage && pokemonName ? (
-                    <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page">
-                        <span className="mx-2">/</span>Pokemon: {pokemonName}
-                    </li>
+                    <>
+                        <li className="breadcrumb-item mx-2">
+                            <span className="mx-2">/</span>
+                            <Link to={`/detail/${pokemonName}`} className="text-blue-600 hover:text-blue-700">
+                                Pokemon: {pokemonName}
+                            </Link>
+                        </li>
+                        {isCategoryPage && categoryName && (
+                            <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page">
+                                <span className="mx-2">/</span>Category: {categoryName}
+                            </li>
+                        )}
+                        {isLocationPage && locationName && (
+                            <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page">
+                                <span className="mx-2">/</span>Location: {locationName}
+                            </li>
+                        )}
+                    </>
                 ) : isLocationPage && locationName ? (
                     <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page">
                         <span className="mx-2">/</span>Location: {locationName}

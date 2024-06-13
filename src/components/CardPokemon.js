@@ -10,13 +10,14 @@ const CardPokemon = ({ name, imageUrl, url, types, moveType }) => {
     navigate(`/detail/${name}`);
   };
 
-  const handleTypeClick = (type) => {
-    navigate(`/category/${type}`);
+  const handleTypeClick = (name, type) => {
+    navigate(`/detail/${name}/category/${type}`);
   };
 
   const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
     return string.charAt(0).toUpperCase() + string.slice(1);
-  };
+};
 
   return (
     <div className="flex flex-col bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-md p-4 cursor-pointer mb-5" onClick={handleCardClick}>
@@ -45,7 +46,7 @@ const CardPokemon = ({ name, imageUrl, url, types, moveType }) => {
               type={(typeInfo.type.name)}
               onClick={(e) => {
                 e.stopPropagation();
-                handleTypeClick(typeInfo.type.name);
+                handleTypeClick(name, typeInfo.type.name);
               }}
             />
           ))}

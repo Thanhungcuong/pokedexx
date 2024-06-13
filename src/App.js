@@ -17,6 +17,8 @@ function App() {
             <Route path="/detail/:name" element={<DetailPage />} />
             <Route path='/category/:type' element={<CategoryPage />} />
             <Route path="/location/:location" element={<LocationPage />} />
+            <Route path="/detail/:name/category/:type" element={<CategoryPage />} />
+            <Route path="/detail/:name/location/:location" element={<LocationPage />} />
           </Route>
         </Routes>
       </Router>
