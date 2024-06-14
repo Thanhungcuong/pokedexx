@@ -4,6 +4,7 @@ import CardPokemon from '../components/CardPokemon';
 import Pagination from '../components/Pagination';
 import { useParams, useLocation } from 'react-router-dom';
 import Loading from '../components/Loading';
+import Breadcrumb from '../components/Breadcrumb';
 
 const CategoryPage = () => {
   const [pokemonList, setPokemonList] = useState([]);
@@ -56,13 +57,31 @@ const CategoryPage = () => {
   };
 
   return (
-    <div className="container mx-auto text-center p-4 mb-20">
+    <div className="container mx-auto text-center p-4 mb-20 ">
       <h1 className='font-bold text-2xl justify-center mb-12'>
-        {pokemonName 
-          ? `Những Pokémon cùng loại ${type.toUpperCase()} như ${capitalizeFirstLetter(pokemonName)}`
-          : `Pokémon thuộc loại ${type ? type.toUpperCase() : ''}`}
-      </h1>
+  {pokemonName ? (
+    <>
+      Những Pokémon cùng loại{' '}
+      <span className="text-blue-600">
+        {type.toUpperCase()}
+      </span>{' '}
+      như{' '}
+      <span className="text-red-600">
+        {capitalizeFirstLetter(pokemonName)}
+      </span>
+    </>
+  ) : (
+    <>
+      Pokémon thuộc loại{' '}
+      <span className="text-blue-600">
+        {type ? type.toUpperCase() : ''}
+      </span>
+    </>
+  )}
+</h1>
+
       {isLoading && <Loading />}
+      <Breadcrumb />
       {!isLoading && (
         <div className="grid grid-cols-4 gap-4">
           {pokemonList.map(pokemon => (

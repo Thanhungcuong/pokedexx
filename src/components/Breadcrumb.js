@@ -1,6 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
+const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
 const Breadcrumb = () => {
     const location = useLocation();
     const pathnames = location.pathname.split('/').filter((x) => x);
@@ -20,37 +26,49 @@ const Breadcrumb = () => {
     const categoryName = isCategoryPage ? pathnames[pathnames.indexOf('category') + 1] : null;
 
     return (
-        <nav aria-label="breadcrumb" className="bg-gray-100 p-3 rounded-md w-full">
+        <nav aria-label="breadcrumb" className="max-w-[1440px] p-3 rounded-md">
             <ol className="list-reset flex">
                 <li className="breadcrumb-item">
-                    <Link to="/" className="text-blue-600 hover:text-blue-700">Home</Link>
+                    <Link
+                        to="/"
+                        className={location.pathname === '/'
+                            ? 'breadcrumb-item mx-2 text-lg font-bold cursor-default'
+                            : 'text-blue-500 hover:text-blue-900 hover:font-bold text-lg hover:underline'}
+                    >
+                        <FontAwesomeIcon icon={faHome} /> Home
+                    </Link>
                 </li>
                 {isDetailPage && pokemonName ? (
                     <>
-                        <li className="breadcrumb-item mx-2">
-                            <span className="mx-2">/</span>
-                            <Link to={`/detail/${pokemonName}`} className="text-blue-600 hover:text-blue-700">
-                                Pokemon: {pokemonName}
+                        <li className="breadcrumb-item mx-2 ">
+                            <FontAwesomeIcon icon={faChevronRight} className="mx-2" />
+                            <Link
+                                to={`/detail/${pokemonName}`}
+                                className={location.pathname === `/detail/${pokemonName}`
+                                    ? 'breadcrumb-item mx-2 text-lg font-bold cursor-default'
+                                    : 'text-blue-500 hover:text-blue-900 hover:font-bold text-lg hover:underline'}
+                            >
+                                Pokemon: {capitalizeFirstLetter(pokemonName)}
                             </Link>
                         </li>
                         {isCategoryPage && categoryName && (
-                            <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page">
-                                <span className="mx-2">/</span>Category: {categoryName}
+                            <li className="breadcrumb-item mx-2 text-lg font-bold cursor-default" aria-current="page">
+                                <FontAwesomeIcon icon={faChevronRight} className="mx-2" />Category: {capitalizeFirstLetter(categoryName)}
                             </li>
                         )}
                         {isLocationPage && locationName && (
-                            <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page">
-                                <span className="mx-2">/</span>Location: {locationName}
+                            <li className="breadcrumb-item mx-2 text-lg font-bold cursor-default" aria-current="page">
+                                <FontAwesomeIcon icon={faChevronRight} className="mx-2" />Location: {capitalizeFirstLetter(locationName)}
                             </li>
                         )}
                     </>
                 ) : isLocationPage && locationName ? (
-                    <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page">
-                        <span className="mx-2">/</span>Location: {locationName}
+                    <li className="breadcrumb-item mx-2 text-lg font-bold cursor-default" aria-current="page">
+                        <FontAwesomeIcon icon={faChevronRight} className="mx-2" />Location: {capitalizeFirstLetter(locationName)}
                     </li>
                 ) : isCategoryPage && categoryName ? (
-                    <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page">
-                        <span className="mx-2">/</span>Category: {categoryName}
+                    <li className="breadcrumb-item mx-2 text-lg font-bold cursor-default" aria-current="page">
+                        <FontAwesomeIcon icon={faChevronRight} className="mx-2" />Category: {capitalizeFirstLetter(categoryName)}
                     </li>
                 ) : (
                     pathnames.map((value, index) => {
@@ -58,13 +76,13 @@ const Breadcrumb = () => {
                         const isLast = index === pathnames.length - 1;
 
                         return isLast ? (
-                            <li className="breadcrumb-item text-gray-500 mx-2" aria-current="page" key={to}>
-                                <span className="mx-2">/</span>{breadcrumbNameMap[to] || value}
+                            <li className="breadcrumb-item mx-2 text-lg font-bold" aria-current="page" key={to}>
+                                <FontAwesomeIcon icon={faChevronRight} className="mx-2" />{breadcrumbNameMap[to] || value}
                             </li>
                         ) : (
                             <li className="breadcrumb-item mx-2" key={to}>
-                                <span className="mx-2">/</span>
-                                <Link to={to} className="text-blue-600 hover:text-blue-700">{breadcrumbNameMap[to] || value}</Link>
+                                <FontAwesomeIcon icon={faChevronRight} className="mx-2" />
+                                <Link to={to} className="text-blue-600 hover:text-blue-700 text-lg hover:underline">{breadcrumbNameMap[to] || value}</Link>
                             </li>
                         );
                     })

@@ -5,6 +5,8 @@ import CardPokemon from '../components/CardPokemon';
 import Loading from '../components/Loading';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
+import Breadcrumb from '../components/Breadcrumb';
+
 const LandingPage = () => {
   const [allPokemon, setAllPokemon] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -110,7 +112,7 @@ const LandingPage = () => {
     }
   }
   return (
-    <div className="container mx-auto text-center p-4 mb-20">
+    <div className="container mx-auto text-center p-4 mb-20 ">
       <h1 className="font-bold text-3xl justify-center">Pokedex</h1>
       {isLoading && <Loading />}
       <div className='flex mb-12'>
@@ -145,6 +147,7 @@ const LandingPage = () => {
 
 
       {error && <p className="text-red-500">{error}</p>}
+      <Breadcrumb />
       {!isLoading && !error && (
         <div>
           

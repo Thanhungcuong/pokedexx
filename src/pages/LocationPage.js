@@ -4,6 +4,7 @@ import CardPokemon from '../components/CardPokemon';
 import Pagination from '../components/Pagination';
 import { useParams, useLocation } from 'react-router-dom';
 import Loading from '../components/Loading';
+import Breadcrumb from '../components/Breadcrumb';
 
 const LocationPage = () => {
   const [pokemonList, setPokemonList] = useState([]);
@@ -59,13 +60,31 @@ const LocationPage = () => {
   };
 
   return (
-    <div className="container mx-auto text-center p-4 mb-20">
+    <div className="container mx-auto text-center p-4 mb-20 ">
       <h1 className='font-bold text-2xl justify-center mb-12'>
-        {pokemonName 
-          ? `Những Pokémon có thể gặp ở ${locationParam.toUpperCase()} cùng với ${capitalizeFirstLetter(pokemonName)}`
-          : `Những Pokémon có thể gặp ở ${locationParam.toUpperCase()}`}
-      </h1>
+  {pokemonName ? (
+    <>
+      Những Pokémon có thể gặp ở{' '}
+      <span className="text-blue-600">
+        {locationParam.toUpperCase()}
+      </span>{' '}
+      cùng với{' '}
+      <span className="text-red-600">
+        {capitalizeFirstLetter(pokemonName)}
+      </span>
+    </>
+  ) : (
+    <>
+      Những Pokémon có thể gặp ở{' '}
+      <span className="text-blue-600">
+        {locationParam.toUpperCase()}
+      </span>
+    </>
+  )}
+</h1>
+
       {isLoading && <Loading />}
+      <Breadcrumb />
       {!isLoading && (
         <div className="grid grid-cols-4 gap-4">
           {pokemonList.map(pokemon => (
