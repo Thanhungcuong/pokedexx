@@ -2,19 +2,23 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CardPokemon from '../components/CardPokemon';
 import Pagination from '../components/Pagination';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import Loading from '../components/Loading';
+import Breadcrumb from '../components/Breadcrumb';
 
 const LocationPage = () => {
   const [pokemonList, setPokemonList] = useState([]);
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const { location } = useParams();
+  const { location: locationParam } = useParams();
+  const location = useLocation();
+  const pathname = location.pathname;
+  const pokemonName = pathname.split('/').length > 3 ? pathname.split('/')[2] : null;
 
   const fetchPokemonByLocation = async (page, limit) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`https://pokeapi.co/api/v2/pokemon-habitat/${location}`);
+      const response = await axios.get(`https://pokeapi.co/api/v2/pokemon-habitat/${locationParam}`);
       const pokemonData = response.data.pokemon_species;
       const countPokemon = pokemonData.length;
       setCount(countPokemon);
@@ -48,14 +52,39 @@ const LocationPage = () => {
 
   useEffect(() => {
     fetchPokemonByLocation(1, 20);
-  }, [location]);
+  }, [locationParam]);
+
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
 
   return (
-    <div className="container mx-auto text-center p-4 mb-20">
+    <div className="container mx-auto text-center p-4 mb-20 ">
       <h1 className='font-bold text-2xl justify-center mb-12'>
-        Những Pokémon có thể gặp ở <span className='text-purple-700 text-2xl'>{location.toUpperCase()}</span>
-      </h1>
+  {pokemonName ? (
+    <>
+      Những Pokémon có thể gặp ở{' '}
+      <span className="text-blue-600">
+        {locationParam.toUpperCase()}
+      </span>{' '}
+      cùng với{' '}
+      <span className="text-red-600">
+        {capitalizeFirstLetter(pokemonName)}
+      </span>
+    </>
+  ) : (
+    <>
+      Những Pokémon có thể gặp ở{' '}
+      <span className="text-blue-600">
+        {locationParam.toUpperCase()}
+      </span>
+    </>
+  )}
+</h1>
+
       {isLoading && <Loading />}
+      <Breadcrumb />
       {!isLoading && (
         <div className="grid grid-cols-4 gap-4">
           {pokemonList.map(pokemon => (

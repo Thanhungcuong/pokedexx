@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CardPokemon from '../components/CardPokemon';
 import Pagination from '../components/Pagination';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import Loading from '../components/Loading';
+import Breadcrumb from '../components/Breadcrumb';
 
 const CategoryPage = () => {
   const [pokemonList, setPokemonList] = useState([]);
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { type } = useParams();
-  const [moveType, setMoveType] = useState('All');
+  const location = useLocation();
+  const { pathname } = location;
+
+  const pokemonName = pathname.split('/').length > 3 ? pathname.split('/')[2] : null;
 
   const fetchPokemonByType = async (page, limit) => {
     setIsLoading(true);
@@ -27,13 +31,11 @@ const CategoryPage = () => {
         selectedPokemon.map(async (pokemonObj) => {
           const url = pokemonObj.pokemon.url;
           const response = await axios.get(url);
-          const moveResponse = await axios.get(response.data.moves[0].move.url);
           return {
             name: response.data.name,
             imageUrl: response.data.sprites.front_default,
             url: url,
-            types: response.data.types,
-            moveType: moveResponse.data.damage_class.name
+            types: response.data.types
           };
         })
       );
@@ -49,12 +51,37 @@ const CategoryPage = () => {
     fetchPokemonByType(1, 20);
   }, [type]);
 
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   return (
-    <div className="container mx-auto text-center p-4 mb-20">
+    <div className="container mx-auto text-center p-4 mb-20 ">
       <h1 className='font-bold text-2xl justify-center mb-12'>
-        Pokémon thuộc loại <span className='text-purple-700 text-2xl'>{type.toUpperCase()}</span>
-      </h1>
+  {pokemonName ? (
+    <>
+      Những Pokémon cùng loại{' '}
+      <span className="text-blue-600">
+        {type.toUpperCase()}
+      </span>{' '}
+      như{' '}
+      <span className="text-red-600">
+        {capitalizeFirstLetter(pokemonName)}
+      </span>
+    </>
+  ) : (
+    <>
+      Pokémon thuộc loại{' '}
+      <span className="text-blue-600">
+        {type ? type.toUpperCase() : ''}
+      </span>
+    </>
+  )}
+</h1>
+
       {isLoading && <Loading />}
+      <Breadcrumb />
       {!isLoading && (
         <div className="grid grid-cols-4 gap-4">
           {pokemonList.map(pokemon => (
@@ -64,7 +91,6 @@ const CategoryPage = () => {
               imageUrl={pokemon.imageUrl}
               url={pokemon.url}
               types={pokemon.types}
-              moveType={pokemon.moveType} 
             />
           ))}
         </div>

@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Button from '../components/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import Loading from '../components/Loading';
-import TypeIcon from '../components/TypeIcon';
+import Breadcrumb from '../components/Breadcrumb';
+import DetailCard from '../components/DetailCard';
 
 const DetailPage = () => {
   const { name } = useParams();
   const [searchTerm, setSearchTerm] = useState(name || '');
   const [pokemonData, setPokemonData] = useState(null);
   const [evolutionData, setEvolutionData] = useState([]);
+  const [chartData, setChartData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
- 
 
   const handleSearchSubmit = async () => {
     if (!searchTerm) return;
@@ -35,6 +34,9 @@ const DetailPage = () => {
           name: evolution.species.name,
           imageUrl: evoResponse.data.sprites.front_default,
           id: evoResponse.data.id,
+          stats: evoResponse.data.stats,
+          weight: evoResponse.data.weight,
+          height: evoResponse.data.height,
         };
       };
 
@@ -47,6 +49,45 @@ const DetailPage = () => {
         evolutionData = evolutionData.evolves_to[0];
       }
 
+      const fetchMoveDetails = async (moveUrl) => {
+        try {
+          const moveResponse = await axios.get(moveUrl);
+          const effectEntry = moveResponse.data.effect_entries.find(entry => entry.language.name === 'en');
+          return {
+            name: moveResponse.data.name,
+            description: effectEntry ? effectEntry.short_effect : 'No description available',
+            accuracy: moveResponse.data.accuracy,
+            power: moveResponse.data.power,
+          };
+        } catch (moveError) {
+          console.error('Error fetching move details:', moveError);
+          return {
+            name: 'N/A',
+            description: 'N/A',
+            accuracy: 'N/A',
+            power: 'N/A',
+          };
+        }
+      };
+
+      const moves = await Promise.allSettled(
+        response.data.moves.map(async (move) => await fetchMoveDetails(move.move.url))
+      );
+
+      const moveResults = moves.map((result) => {
+        if (result.status === "fulfilled") {
+          return result.value;
+        } else {
+          console.error('Error fetching move details:', result.reason);
+          return {
+            name: 'N/A',
+            description: 'N/A',
+            accuracy: 'N/A',
+            power: 'N/A',
+          };
+        }
+      });
+
       const pokemonDetails = {
         name: response.data.name,
         imageUrl: response.data.sprites.front_default,
@@ -54,9 +95,30 @@ const DetailPage = () => {
         types: response.data.types,
         evolutionChain,
         locations: speciesDataResponse.data.habitat ? speciesDataResponse.data.habitat.name : 'Unknown',
-        moves: response.data.moves.map(move => capitalizeFirstLetter(move.move.name)),
-      abilities: response.data.abilities.map(ability => capitalizeFirstLetter(ability.ability.name)),
+        moves: moveResults,
+        abilities: response.data.abilities.map(ability => capitalizeFirstLetter(ability.ability.name)),
       };
+
+      const labels = pokemonDetails.stats.map(stat => capitalizeFirstLetter(stat.stat.name));
+      const colors = [
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 99, 132, 0.2)',
+      ];
+
+      const datasets = evolutionChain.map((evo, index) => ({
+        label: capitalizeFirstLetter(evo.name),
+        data: evo.stats.map(stat => stat.base_stat),
+        fill: true,
+        backgroundColor: colors[index % colors.length],
+        borderColor: colors[index % colors.length].replace('0.2', '1'),
+        pointBackgroundColor: colors[index % colors.length].replace('0.2', '1'),
+      }));
+
+      setChartData({
+        labels,
+        datasets,
+      });
 
       setPokemonData(pokemonDetails);
       setEvolutionData(evolutionChain);
@@ -75,102 +137,42 @@ const DetailPage = () => {
   }, [name]);
 
   const handleTypeClick = (type) => {
-    navigate(`/category/${type}`);
+    navigate(`/detail/${name}/category/${type}`);
   };
 
   const handleClickLocation = (location) => {
-    navigate(`/location/${location}`)
-  }
+    navigate(`/detail/${name}/location/${location}`);
+  };
+
+  const handleMoreInformation = (name) => {
+    navigate(`/detail/${name}/moves/${name}`);
+  };
 
   const handleClickEvolution = (name) => {
     navigate(`/detail/${name}`);
-    window.location.reload()
-  }
+    window.location.reload();
+  };
 
   const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
   return (
-    <div className="container mx-auto text-center p-4">
+    <div className="container mx-auto text-center p-4 ">
       {isLoading && <Loading />}
+      <Breadcrumb className="mt-10" />
       {pokemonData && (
-        <div className="bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-md p-4 mt-10 flex">
-          <img
-            src={pokemonData.imageUrl}
-            alt={pokemonData.name}
-            className="w-96 h-96 my-auto mx-auto"
-            onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/200';
-            }}
-          />
-          <div className="w-1/2 my-auto">
-            <h2 className="text-left font-bold text-2xl">
-              Tên: <span className="text-purple-700">{capitalizeFirstLetter(pokemonData.name)}</span>
-            </h2>
-            <div className="flex flex-col">
-              <p className="text-left text-2xl font-bold">Chỉ số:</p>
-              {pokemonData.stats.map((stat) => (
-                <p key={stat.stat.name} className="text-left text-3xl text-red-600">
-                  {capitalizeFirstLetter(stat.stat.name)}: {stat.base_stat}
-                </p>
-              ))}
-            </div>
-            <div className="flex flex-wrap">
-              <p className="font-bold text-xl mr-1">Khả năng đặc biệt: </p>
-              <p className="text-blue-600 text-xl font-bold items-start mr-3 text-justify">
-                {pokemonData.abilities.join(', ')}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap">
-              <p className="font-bold text-xl">Chiêu thức:</p>
-              <p className="text-cyan-600 text-xl font-bold items-start mr-3 text-justify">
-                 {pokemonData.moves.join(', ')}
-              </p>
-            </div>
-
-            <div className="flex items-center">
-              <p className="font-bold text-xl mr-1">Hệ:</p>
-              {pokemonData.types.map((type) => (
-                <TypeIcon
-                  key={type.type.name}
-                  type={type.type.name}
-                  onClick={() => handleTypeClick(type.type.name)}
-                >
-                  {type.type.name}
-                </TypeIcon>
-              ))}
-            </div>
-
-            <p className="text-xl font-bold text-left cursor-pointer" onClick={() => handleClickLocation (pokemonData.locations)}>
-              Có thể gặp ở: <span className="text-orange-400">{capitalizeFirstLetter(pokemonData.locations)}</span>
-            </p>
-
-            {evolutionData.length > 0 && (
-        <div className="flex">
-          <p className="text-left font-bold text-xl">Tiến hóa:</p> 
-          {evolutionData.map((evolution, index) => (
-            <div key={evolution.id} className=" flex items-center cursor-pointer" >
-              <div onClick={() => handleClickEvolution(evolution.name)}>
-              <img
-                src={evolution.imageUrl}
-                alt={evolution.name}
-                className="h-40 w-40 mx-auto"
-              />
-              <p className="text-pink-600 text-xl font-bold">{capitalizeFirstLetter(evolution.name)}</p>
-              
-              </div>
-              {index < evolutionData.length - 1 && <p className="text-xl mx-2">→</p>}
-            </div>
-          ))}
-        </div>
+        <DetailCard
+          pokemonData={pokemonData}
+          evolutionData={evolutionData}
+          chartData={chartData}
+          handleTypeClick={handleTypeClick}
+          handleClickLocation={handleClickLocation}
+          handleClickEvolution={handleClickEvolution}
+          handleMoreInformation={handleMoreInformation}
+        />
       )}
-          </div>
-        </div>
-      )}
-
-      
     </div>
   );
 };

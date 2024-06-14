@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import Breadcrumb from '../components/Breadcrumb';
 const MainLayout = () => {
   const [types, setTypes] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -58,8 +58,9 @@ const MainLayout = () => {
   };
 
   const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
     return string.charAt(0).toUpperCase() + string.slice(1);
-  };
+};
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -71,9 +72,9 @@ const MainLayout = () => {
   return (
     <div className='flex flex-col'>
       <header className='w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-20'>
-        <nav className='max-w-[1440px] mx-auto'>
-          <ul className='flex  justify-between'>
-            <Link className='text-white text-2xl hover:bg-white hover:text-black mx-auto w-fit my-auto rounded-md p-4' to="/">
+        <nav className=''>
+          <ul className='flex max-w-[1440px] mx-auto justify-between'>
+            <Link className='text-white text-2xl hover:bg-white hover:text-black w-fit my-auto rounded-md p-4' to="/">
               <li>Home</li>
             </Link>
 
@@ -88,11 +89,11 @@ const MainLayout = () => {
       Category
     </button>
     {dropdownOpen && (
-      <ul className='absolute bg-white text-black rounded-md mt-2 p-2 shadow-lg max-h-60 overflow-y-auto w-40 divide-y divide-black'>
+      <ul className='absolute bg-white text-black rounded-md mt-2 shadow-lg max-h-60 overflow-y-auto w-40'>
         {types.map(type => (
           <li
             key={type.name}
-            className='p-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white cursor-pointer text-center hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500'
+            className='p-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white cursor-pointer text-center hover:bg-gradient-to-r hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 hover:font-bold hover:text-black py-4'
             onClick={() => handleTypeClick(type.name)}
           >
             {capitalizeFirstLetter(type.name)}
@@ -103,20 +104,20 @@ const MainLayout = () => {
   </div>
 </div>
 
-<div className='relative mx-auto w-fit' ref={dropdownLocationRef}>
+<div className='relative  w-fit' ref={dropdownLocationRef}>
   <div className='group'>
     <button
-      className='text-white text-2xl hover:bg-white mt-2 hover:text-black rounded-md p-4'
+      className='text-white text-2xl hover:bg-white mt-2  hover:text-black rounded-md p-4'
       onClick={() => setDropdownLocationOpen(!dropdownLocationOpen)}
     >
       Location
     </button>
     {dropdownLocationOpen && (
-      <ul className='absolute bg-white text-black rounded-md mt-2 p-2 shadow-lg max-h-60 overflow-y-auto w-40 divide-y divide-black'>
+      <ul className='absolute bg-white text-black rounded-md mt-2 shadow-lg max-h-60 overflow-y-auto w-40'>
         {locations.map(location => (
           <li
             key={location.name}
-            className='p-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white cursor-pointer text-center hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-500'
+            className=' bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white cursor-pointer text-center hover:bg-gradient-to-r hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 hover:font-bold hover:text-black py-4'
             onClick={() => handleLocationClick(location.name)}
           >
             {capitalizeFirstLetter(location.name)}

@@ -4,7 +4,7 @@ const typeStyles = {
   normal: {
     bg: 'bg-gray-200',
     text: 'text-gray-800',
-    icon: '⬜',
+    icon: '🙂',
   },
   fire: {
     bg: 'bg-red-200',
@@ -93,6 +93,7 @@ const typeStyles = {
   },
 };
 const capitalizeFirstLetter = (string) => {
+  if (!string) return '';
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 const TypeIcon = ({ type, onClick }) => {
@@ -107,7 +108,7 @@ const TypeIcon = ({ type, onClick }) => {
       className={`${bg} ${text} py-3 pl-3 pr-4 m-1 rounded cursor-pointer flex justify-center items-center w-fit hover:bg-white`}
       onClick={onClick}
     >
-      <span className="mx-auto font-bold text-2xl">{icon}</span>
+      <span className="mx-auto font-bold text-2xl mr-4">{icon}</span>
       <span className='font-bold'>{capitalizeFirstLetter(type)}</span>
     </div>
   );

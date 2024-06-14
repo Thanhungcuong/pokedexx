@@ -6,7 +6,7 @@ import LandingPage from './pages/LandingPage';
 import DetailPage from './pages/DetailPage';
 import CategoryPage from './pages/CategoryPage';
 import LocationPage from './pages/LocationPage';
-
+import MovesPage from './pages/MovesPage';
 
 function App() {
   return (
@@ -18,6 +18,9 @@ function App() {
             <Route path="/detail/:name" element={<DetailPage />} />
             <Route path='/category/:type' element={<CategoryPage />} />
             <Route path="/location/:location" element={<LocationPage />} />
+            <Route path="/detail/:name/category/:type" element={<CategoryPage />} />
+            <Route path="/detail/:name/location/:location" element={<LocationPage />} />
+            <Route path="/detail/:name/moves/:name" element={<MovesPage />} />
           </Route>
         </Routes>
       </Router>
