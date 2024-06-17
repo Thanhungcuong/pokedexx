@@ -1,12 +1,11 @@
-import React from 'react';
-import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import MainLayoyut from './layouts/mainLayoyut';
-import LandingPage from './pages/LandingPage';
-import DetailPage from './pages/DetailPage';
-import CategoryPage from './pages/CategoryPage';
-import LocationPage from './pages/LocationPage';
-import MovesPage from './pages/MovesPage';
+import React from "react";
+import "./App.css";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import MainLayoyut from "./layouts/mainLayoyut";
+import LandingPage from "./pages/LandingPage";
+import DetailPage from "./pages/DetailPage";
+import CategoryPage from "./pages/CategoryPage";
+import LocationPage from "./pages/LocationPage";
 
 function App() {
   return (
@@ -16,11 +15,16 @@ function App() {
           <Route path="/" element={<MainLayoyut />}>
             <Route index element={<LandingPage />} />
             <Route path="/detail/:name" element={<DetailPage />} />
-            <Route path='/category/:type' element={<CategoryPage />} />
+            <Route path="/category/:type" element={<CategoryPage />} />
             <Route path="/location/:location" element={<LocationPage />} />
-            <Route path="/detail/:name/category/:type" element={<CategoryPage />} />
-            <Route path="/detail/:name/location/:location" element={<LocationPage />} />
-            <Route path="/detail/:name/moves/:name" element={<MovesPage />} />
+            <Route
+              path="/detail/:name/category/:type"
+              element={<CategoryPage />}
+            />
+            <Route
+              path="/detail/:name/location/:location"
+              element={<LocationPage />}
+            />
           </Route>
         </Routes>
       </Router>
