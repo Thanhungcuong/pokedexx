@@ -99,7 +99,7 @@ const MainLayout = () => {
                     {types.map((type) => (
                       <li
                         key={type.name}
-                        className="p-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white cursor-pointer text-center hover:bg-gradient-to-r hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 hover:font-bold hover:text-black py-4"
+                        className="p-2  text-white cursor-pointer text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:bg-gradient-to-r hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 hover:font-bold hover:text-black py-4"
                         onClick={() => handleTypeClick(type.name)}
                       >
                         {capitalizeFirstLetter(type.name)}

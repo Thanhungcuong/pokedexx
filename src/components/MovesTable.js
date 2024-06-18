@@ -33,26 +33,30 @@ const MovesTable = ({ data, itemsPerPage = 10 }) => {
   );
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full table-auto border-collapse">
+    <div className="max-sm:hidden p-10">
+      <table className="min-w-full table-fixed border-collapse">
         <thead>
           <tr>
-            <th className="border border-black px-2 sm:px-4 py-2">ID</th>
-            <th className="border border-black px-2 sm:px-4 py-2">
+            <th className="w-1/12 border border-black px-2 sm:px-4 py-2">ID</th>
+            <th className="w-2/12 border border-black px-2 sm:px-4 py-2">
               Tên chiêu thức
             </th>
-            <th className="border border-black px-2 sm:px-4 py-2">Mô tả</th>
-            <th className="border border-black px-2 sm:px-4 py-2">
+            <th className="w-8/12 border border-black px-2 sm:px-4 py-2">
+              Mô tả
+            </th>
+            <th className="w-1/12 border border-black px-2 sm:px-4 py-2">
               Độ chính xác
             </th>
-            <th className="border border-black px-2 sm:px-4 py-2">Sức mạnh</th>
+            <th className="w-1/12 border border-black px-2 sm:px-4 py-2">
+              Sức mạnh
+            </th>
           </tr>
         </thead>
         <tbody>
           {currentData.map((move, index) => (
             <tr key={index}>
               <td className="border border-black px-2 sm:px-4 py-2">
-                {index + 1}
+                {(currentPage - 1) * itemsPerPage + index + 1}
               </td>
               <td className="border border-black px-2 sm:px-4 py-2">
                 {capitalizeFirstLetter(move.name)}
@@ -70,38 +74,46 @@ const MovesTable = ({ data, itemsPerPage = 10 }) => {
           ))}
         </tbody>
       </table>
-      <div className="flex justify-center items-center mt-4">
-        <Button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          <FaArrowLeft />
-        </Button>
-        {renderPageNumbers().map((number, index) =>
-          number === "..." ? (
-            <span key={index} className="mx-2 text-gray-500">
-              ...
-            </span>
-          ) : (
-            <Button
-              key={index}
-              onClick={() => handlePageChange(number)}
-              className={
-                number === currentPage
-                  ? "font-bold bg-indigo-900 text-white mx-1"
-                  : "mx-1"
-              }
-            >
-              {number}
-            </Button>
-          ),
-        )}
-        <Button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          <FaArrowRight />
-        </Button>
+
+      <div className="flex max-xl:flex-col justify-around items-center mt-4">
+        <p className="text-xl ">
+          Có tổng{" "}
+          <span className="font-bold text-xl text-nowrap">{data.length}</span>{" "}
+          chiêu thức
+        </p>
+        <div className="flex justify-center items-center mt-4 gap-1">
+          <Button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <FaArrowLeft />
+          </Button>
+          {renderPageNumbers().map((number, index) =>
+            number === "..." ? (
+              <span key={index} className="mx-2 text-gray-500">
+                ...
+              </span>
+            ) : (
+              <Button
+                key={index}
+                onClick={() => handlePageChange(number)}
+                className={
+                  number === currentPage
+                    ? "font-bold bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 text-white"
+                    : "mx-1"
+                }
+              >
+                {number}
+              </Button>
+            ),
+          )}
+          <Button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <FaArrowRight />
+          </Button>
+        </div>
       </div>
     </div>
   );

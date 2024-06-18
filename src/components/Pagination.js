@@ -85,7 +85,7 @@ const Pagination = ({
               onClick={() => handlePageChange(number)}
               className={
                 number === currentPage
-                  ? "font-bold bg-indigo-900 text-white"
+                  ? "font-bold bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 text-white"
                   : ""
               }
             >

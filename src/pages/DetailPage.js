@@ -41,6 +41,8 @@ const DetailPage = () => {
           stats: evoResponse.data.stats,
           weight: evoResponse.data.weight,
           height: evoResponse.data.height,
+          latest_cries: evoResponse.data.cries.latest,
+          legacy_cries: evoResponse.data.cries.legacy,
         };
       };
 
@@ -69,12 +71,7 @@ const DetailPage = () => {
           };
         } catch (moveError) {
           console.error("Error fetching move details:", moveError);
-          return {
-            name: "N/A",
-            description: "N/A",
-            accuracy: "N/A",
-            power: "N/A",
-          };
+          return null; // Return null instead of N/A
         }
       };
 
@@ -84,21 +81,12 @@ const DetailPage = () => {
         ),
       );
 
-      const moveResults = moves.map((result) => {
-        if (result.status === "fulfilled") {
-          return result.value;
-        } else {
-          console.error("Error fetching move details:", result.reason);
-          return {
-            name: "N/A",
-            description: "N/A",
-            accuracy: "N/A",
-            power: "N/A",
-          };
-        }
-      });
+      const moveResults = moves
+        .filter((result) => result.status === "fulfilled" && result.value)
+        .map((result) => result.value);
 
       const pokemonDetails = {
+        id: response.data.id,
         name: response.data.name,
         imageUrl: response.data.sprites.front_default,
         stats: response.data.stats,
