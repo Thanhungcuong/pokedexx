@@ -3,9 +3,9 @@ import axios from "axios";
 import CardPokemon from "../components/CardPokemon";
 import Pagination from "../components/Pagination";
 import { useParams, useLocation } from "react-router-dom";
-import Loading from "../components/Loading";
+import LoadingCard from "../components/LoadingCard";
 import Breadcrumb from "../components/Breadcrumb";
-
+import GoToTopButton from "../components/GoToTopButton";
 const LocationPage = () => {
   const [pokemonList, setPokemonList] = useState([]);
   const [count, setCount] = useState(0);
@@ -58,13 +58,21 @@ const LocationPage = () => {
     fetchPokemonByLocation(1, 20);
   }, [locationParam]);
 
+  useEffect(() => {
+    if (isLoading) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isLoading]);
+
   const capitalizeFirstLetter = (string) => {
     if (!string) return "";
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
   return (
-    <div className="max-w-[1440px] container mx-auto text-center p-4 mb-20 ">
+    <div className="max-w-[1440px] container mx-auto text-center p-4 mb-20">
       <h1 className="font-bold text-2xl justify-center mb-12">
         {pokemonName ? (
           <>
@@ -83,8 +91,14 @@ const LocationPage = () => {
         )}
       </h1>
 
-      {isLoading && <Loading />}
       <Breadcrumb />
+      {isLoading && (
+        <div className="grid grid-cols-4 gap-4 max-xl:grid-cols-3 max-lg:grid-cols-2">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <LoadingCard key={index} />
+          ))}
+        </div>
+      )}
       {!isLoading && (
         <div className="max-sm:flex max-sm:flex-col grid grid-cols-4 gap-4 max-xl:grid-cols-3 max-lg:grid-cols-2">
           {pokemonList.map((pokemon) => (
@@ -104,6 +118,7 @@ const LocationPage = () => {
         initialPokemonPerPage={20}
         onPageChange={fetchPokemonByLocation}
       />
+      <GoToTopButton />
     </div>
   );
 };

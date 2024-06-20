@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import Button from "./Button";
+import { gradientStyles } from "../constants/gradientStyles";
 
 const MovesCard = ({ data, itemsPerPage = 10 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,7 +28,7 @@ const MovesCard = ({ data, itemsPerPage = 10 }) => {
         {currentData.map((move, index) => (
           <div
             key={index}
-            className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg rounded-lg p-4 w-60"
+            className={`${gradientStyles.indigoToPink500} text-white shadow-lg rounded-lg p-4 w-60`}
           >
             <h3 className="text-lg font-bold mb-2">
               {(currentPage - 1) * itemsPerPage + index + 1}

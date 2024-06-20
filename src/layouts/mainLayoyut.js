@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Outlet, Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Breadcrumb from "../components/Breadcrumb";
+import { gradientStyles } from "../constants/gradientStyles";
+
 const MainLayout = () => {
   const [types, setTypes] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -76,7 +77,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex flex-col">
-      <header className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-20">
+      <header className={`w-full ${gradientStyles.indigoToPink500} h-20`}>
         <nav className="">
           <ul className="flex max-w-[1440px] mx-auto justify-between px-4">
             <Link
@@ -99,7 +100,7 @@ const MainLayout = () => {
                     {types.map((type) => (
                       <li
                         key={type.name}
-                        className="p-2  text-white cursor-pointer text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:bg-gradient-to-r hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 hover:font-bold hover:text-black py-4"
+                        className={`p-2  text-white cursor-pointer text-center ${gradientStyles.indigoToPink500} ${gradientStyles.hoverIndigoToPink400} hover:font-bold hover:text-black py-4`}
                         onClick={() => handleTypeClick(type.name)}
                       >
                         {capitalizeFirstLetter(type.name)}
@@ -123,7 +124,7 @@ const MainLayout = () => {
                     {locations.map((location) => (
                       <li
                         key={location.name}
-                        className=" bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white cursor-pointer text-center hover:bg-gradient-to-r hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 hover:font-bold hover:text-black py-4"
+                        className={`text-white cursor-pointer text-center ${gradientStyles.indigoToPink500} ${gradientStyles.hoverIndigoToPink400} hover:font-bold hover:text-black py-4`}
                         onClick={() => handleLocationClick(location.name)}
                       >
                         {capitalizeFirstLetter(location.name)}
@@ -139,7 +140,9 @@ const MainLayout = () => {
       <main className="h-full min-h-screen">
         <Outlet />
       </main>
-      <footer className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white w-full h-20 flex justify-center items-center">
+      <footer
+        className={`${gradientStyles.indigoToPink500} text-white w-full h-20 flex justify-center items-center`}
+      >
         <p className="text-white text-xl max-sm:text-center max-sm:w-[18rem]">
           Pokedex made by ThanHungCuong for studying
         </p>

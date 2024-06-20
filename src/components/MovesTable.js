@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import Button from "./Button";
+import { gradientStyles } from "../constants/gradientStyles";
 
 const MovesTable = ({ data, itemsPerPage = 10 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,7 +100,7 @@ const MovesTable = ({ data, itemsPerPage = 10 }) => {
                 onClick={() => handlePageChange(number)}
                 className={
                   number === currentPage
-                    ? "font-bold bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 text-white"
+                    ? `${gradientStyles.indigoToPink700} font-bold to-pink-700 text-white`
                     : "mx-1"
                 }
               >

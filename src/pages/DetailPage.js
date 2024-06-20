@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import Breadcrumb from "../components/Breadcrumb";
 import DetailCard from "../components/DetailCard";
-
+import GoToTopButton from "../components/GoToTopButton";
 const DetailPage = () => {
   const { name } = useParams();
   const [searchTerm, setSearchTerm] = useState(name || "");
@@ -71,7 +71,7 @@ const DetailPage = () => {
           };
         } catch (moveError) {
           console.error("Error fetching move details:", moveError);
-          return null; // Return null instead of N/A
+          return null;
         }
       };
 
@@ -85,6 +85,32 @@ const DetailPage = () => {
         .filter((result) => result.status === "fulfilled" && result.value)
         .map((result) => result.value);
 
+      const fetchAbilityDetails = async (abilityUrl) => {
+        try {
+          const abilityResponse = await axios.get(abilityUrl);
+          const effectEntry = abilityResponse.data.effect_entries.find(
+            (entry) => entry.language.name === "en",
+          );
+          return {
+            id: abilityResponse.data.id,
+            name: abilityResponse.data.name,
+            effect: effectEntry
+              ? effectEntry.short_effect
+              : "No effect available",
+            generation: abilityResponse.data.generation.name,
+          };
+        } catch (abilityError) {
+          console.error("Error fetching ability details:", abilityError);
+          return null;
+        }
+      };
+
+      const abilities = await Promise.all(
+        response.data.abilities.map(async (ability) =>
+          fetchAbilityDetails(ability.ability.url),
+        ),
+      );
+
       const pokemonDetails = {
         id: response.data.id,
         name: response.data.name,
@@ -96,9 +122,7 @@ const DetailPage = () => {
           ? speciesDataResponse.data.habitat.name
           : "Unknown",
         moves: moveResults,
-        abilities: response.data.abilities.map((ability) =>
-          capitalizeFirstLetter(ability.ability.name),
-        ),
+        abilities,
       };
 
       const labels = pokemonDetails.stats.map((stat) =>
@@ -159,7 +183,7 @@ const DetailPage = () => {
   };
 
   return (
-    <div className="container mx-auto text-center ">
+    <div className="container mx-auto text-center">
       {isLoading && <Loading />}
       <Breadcrumb className="mt-10" />
       {pokemonData && (
@@ -172,6 +196,7 @@ const DetailPage = () => {
           handleClickEvolution={handleClickEvolution}
         />
       )}
+      <GoToTopButton />
     </div>
   );
 };

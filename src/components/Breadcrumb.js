@@ -35,7 +35,7 @@ const Breadcrumb = () => {
     : null;
 
   return (
-    <nav aria-label="breadcrumb" className="max-w-[1440px] p-3 rounded-md">
+    <nav aria-label="breadcrumb" className="max-w-[1440px] pb-10 rounded-md">
       <ol className="list-reset flex">
         <LiBreadcrumb to="/" isActive={location.pathname === "/"} hideIcon>
           <FontAwesomeIcon icon={faHome} /> Home

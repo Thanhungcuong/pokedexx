@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import Pagination from "../components/Pagination";
 import axios from "axios";
 import CardPokemon from "../components/CardPokemon";
-import Loading from "../components/Loading";
+import LoadingCard from "../components/LoadingCard";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
+import GoToTopButton from "../components/GoToTopButton";
 
 const LandingPage = () => {
   const [allPokemon, setAllPokemon] = useState([]);
@@ -34,6 +35,14 @@ const LandingPage = () => {
 
     fetchTotalPokemonCount();
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isLoading]);
 
   const fetchPokemon = async (page, limit, moveType = "") => {
     setIsLoading(true);
@@ -120,10 +129,10 @@ const LandingPage = () => {
       navigate(`/detail/${searchTerm}`);
     }
   };
+
   return (
-    <div className="container max-w-[1440px] mx-auto text-center p-4 mb-20 ">
+    <div className="container max-w-[1440px] mx-auto text-center p-4 mb-20">
       <h1 className="font-bold text-3xl justify-center">Pokedex</h1>
-      {isLoading && <Loading />}
       <div className="flex max-sm:flex-col max-sm:justify-center items-center mt-6 mb-12">
         <div className="flex mr-auto items-center max-sm:w-fit max-sm:mx-auto">
           <input
@@ -134,11 +143,8 @@ const LandingPage = () => {
             onChange={handleSearchChange}
           />
           <Button onClick={handleSearchSubmit}>Tìm kiếm</Button>
-          {isLoading && <Loading />}
-          {error && <p className="text-red-500">{error}</p>}
         </div>
-
-        <div className="sm:ml-auto max-sm:mt-6 ">
+        <div className="sm:ml-auto max-sm:mt-6">
           Lọc theo move type:
           <select
             className="ml-2 p-2 border border-gray-300 rounded"
@@ -152,9 +158,15 @@ const LandingPage = () => {
           </select>
         </div>
       </div>
-
-      {error && <p className="text-red-500">{error}</p>}
       <Breadcrumb />
+      {isLoading && (
+        <div className="grid grid-cols-4 gap-4 max-xl:grid-cols-3 max-lg:grid-cols-2">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <LoadingCard key={index} />
+          ))}
+        </div>
+      )}
+      {error && <p className="text-red-500">{error}</p>}
       {!isLoading && !error && (
         <div>
           <div className="max-sm:flex max-sm:flex-col grid grid-cols-4 gap-4 max-xl:grid-cols-3 max-lg:grid-cols-2">
@@ -171,8 +183,7 @@ const LandingPage = () => {
           </div>
         </div>
       )}
-
-      <div className=" text-center">
+      <div className="text-center">
         <Pagination
           totalPokemon={
             moveTypeFilter ? filteredPokemonCount : totalPokemonCount
@@ -185,6 +196,7 @@ const LandingPage = () => {
           }}
         />
       </div>
+      <GoToTopButton />
     </div>
   );
 };

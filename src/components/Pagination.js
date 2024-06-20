@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import Button from "./Button";
+import { gradientStyles } from "../constants/gradientStyles";
 
 const Pagination = ({
   totalPokemon,
@@ -22,6 +23,7 @@ const Pagination = ({
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
     onPageChange(page, pokemonPerPage);
+    window.scrollTo({ top: 0 });
   };
 
   const renderPageNumbers = () => {
@@ -85,7 +87,7 @@ const Pagination = ({
               onClick={() => handlePageChange(number)}
               className={
                 number === currentPage
-                  ? "font-bold bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 text-white"
+                  ? `font-bold ${gradientStyles.indigoToPink700} text-white`
                   : ""
               }
             >
