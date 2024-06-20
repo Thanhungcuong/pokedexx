@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
-import Loading from '../components/Loading';
-import Breadcrumb from '../components/Breadcrumb';
-import DetailCard from '../components/DetailCard';
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import Loading from "../components/Loading";
+import Breadcrumb from "../components/Breadcrumb";
+import DetailCard from "../components/DetailCard";
+import GoToTopButton from "../components/GoToTopButton";
 const DetailPage = () => {
   const { name } = useParams();
-  const [searchTerm, setSearchTerm] = useState(name || '');
+  const [searchTerm, setSearchTerm] = useState(name || "");
   const [pokemonData, setPokemonData] = useState(null);
   const [evolutionData, setEvolutionData] = useState([]);
   const [chartData, setChartData] = useState(null);
@@ -22,14 +22,18 @@ const DetailPage = () => {
     setError(null);
 
     try {
-      const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${searchTerm}`);
+      const response = await axios.get(
+        `https://pokeapi.co/api/v2/pokemon/${searchTerm}`,
+      );
       const speciesDataResponse = await axios.get(response.data.species.url);
 
       const evolutionChainUrl = speciesDataResponse.data.evolution_chain.url;
       const evolutionChainResponse = await axios.get(evolutionChainUrl);
 
       const fetchEvolutionData = async (evolution) => {
-        const evoResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${evolution.species.name}`);
+        const evoResponse = await axios.get(
+          `https://pokeapi.co/api/v2/pokemon/${evolution.species.name}`,
+        );
         return {
           name: evolution.species.name,
           imageUrl: evoResponse.data.sprites.front_default,
@@ -37,6 +41,8 @@ const DetailPage = () => {
           stats: evoResponse.data.stats,
           weight: evoResponse.data.weight,
           height: evoResponse.data.height,
+          latest_cries: evoResponse.data.cries.latest,
+          legacy_cries: evoResponse.data.cries.legacy,
         };
       };
 
@@ -52,67 +58,89 @@ const DetailPage = () => {
       const fetchMoveDetails = async (moveUrl) => {
         try {
           const moveResponse = await axios.get(moveUrl);
-          const effectEntry = moveResponse.data.effect_entries.find(entry => entry.language.name === 'en');
+          const effectEntry = moveResponse.data.effect_entries.find(
+            (entry) => entry.language.name === "en",
+          );
           return {
             name: moveResponse.data.name,
-            description: effectEntry ? effectEntry.short_effect : 'No description available',
+            description: effectEntry
+              ? effectEntry.short_effect
+              : "No description available",
             accuracy: moveResponse.data.accuracy,
             power: moveResponse.data.power,
           };
         } catch (moveError) {
-          console.error('Error fetching move details:', moveError);
-          return {
-            name: 'N/A',
-            description: 'N/A',
-            accuracy: 'N/A',
-            power: 'N/A',
-          };
+          console.error("Error fetching move details:", moveError);
+          return null;
         }
       };
 
       const moves = await Promise.allSettled(
-        response.data.moves.map(async (move) => await fetchMoveDetails(move.move.url))
+        response.data.moves.map(
+          async (move) => await fetchMoveDetails(move.move.url),
+        ),
       );
 
-      const moveResults = moves.map((result) => {
-        if (result.status === "fulfilled") {
-          return result.value;
-        } else {
-          console.error('Error fetching move details:', result.reason);
+      const moveResults = moves
+        .filter((result) => result.status === "fulfilled" && result.value)
+        .map((result) => result.value);
+
+      const fetchAbilityDetails = async (abilityUrl) => {
+        try {
+          const abilityResponse = await axios.get(abilityUrl);
+          const effectEntry = abilityResponse.data.effect_entries.find(
+            (entry) => entry.language.name === "en",
+          );
           return {
-            name: 'N/A',
-            description: 'N/A',
-            accuracy: 'N/A',
-            power: 'N/A',
+            id: abilityResponse.data.id,
+            name: abilityResponse.data.name,
+            effect: effectEntry
+              ? effectEntry.short_effect
+              : "No effect available",
+            generation: abilityResponse.data.generation.name,
           };
+        } catch (abilityError) {
+          console.error("Error fetching ability details:", abilityError);
+          return null;
         }
-      });
+      };
+
+      const abilities = await Promise.all(
+        response.data.abilities.map(async (ability) =>
+          fetchAbilityDetails(ability.ability.url),
+        ),
+      );
 
       const pokemonDetails = {
+        id: response.data.id,
         name: response.data.name,
         imageUrl: response.data.sprites.front_default,
         stats: response.data.stats,
         types: response.data.types,
         evolutionChain,
-        locations: speciesDataResponse.data.habitat ? speciesDataResponse.data.habitat.name : 'Unknown',
+        locations: speciesDataResponse.data.habitat
+          ? speciesDataResponse.data.habitat.name
+          : "Unknown",
         moves: moveResults,
-        abilities: response.data.abilities.map(ability => capitalizeFirstLetter(ability.ability.name)),
+        abilities,
       };
 
-      const labels = pokemonDetails.stats.map(stat => capitalizeFirstLetter(stat.stat.name));
+      const labels = pokemonDetails.stats.map((stat) =>
+        capitalizeFirstLetter(stat.stat.name),
+      );
       const colors = [
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(255, 99, 132, 0.2)',
+        "rgba(75, 192, 192, 0.2)",
+        "rgba(54, 162, 235, 0.2)",
+        "rgba(255, 99, 132, 0.2)",
       ];
 
       const datasets = evolutionChain.map((evo, index) => ({
         label: capitalizeFirstLetter(evo.name),
-        data: evo.stats.map(stat => stat.base_stat),
+        data: evo.stats.map((stat) => stat.base_stat),
         fill: true,
         backgroundColor: colors[index % colors.length],
-        borderColor: colors[index % colors.length].replace('0.2', '1'),
-        pointBackgroundColor: colors[index % colors.length].replace('0.2', '1'),
+        borderColor: colors[index % colors.length].replace("0.2", "1"),
+        pointBackgroundColor: colors[index % colors.length].replace("0.2", "1"),
       }));
 
       setChartData({
@@ -123,8 +151,8 @@ const DetailPage = () => {
       setPokemonData(pokemonDetails);
       setEvolutionData(evolutionChain);
     } catch (error) {
-      console.error('Error fetching Pokemon:', error);
-      setError('Pokemon không được tìm thấy.');
+      console.error("Error fetching Pokemon:", error);
+      setError("Pokemon không được tìm thấy.");
     } finally {
       setIsLoading(false);
     }
@@ -144,22 +172,18 @@ const DetailPage = () => {
     navigate(`/detail/${name}/location/${location}`);
   };
 
-  const handleMoreInformation = (name) => {
-    navigate(`/detail/${name}/moves/${name}`);
-  };
-
   const handleClickEvolution = (name) => {
     navigate(`/detail/${name}`);
     window.location.reload();
   };
 
   const capitalizeFirstLetter = (string) => {
-    if (!string) return '';
+    if (!string) return "";
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
   return (
-    <div className="container mx-auto text-center p-4 ">
+    <div className="container mx-auto text-center">
       {isLoading && <Loading />}
       <Breadcrumb className="mt-10" />
       {pokemonData && (
@@ -170,9 +194,9 @@ const DetailPage = () => {
           handleTypeClick={handleTypeClick}
           handleClickLocation={handleClickLocation}
           handleClickEvolution={handleClickEvolution}
-          handleMoreInformation={handleMoreInformation}
         />
       )}
+      <GoToTopButton />
     </div>
   );
 };

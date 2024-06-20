@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import CardPokemon from '../components/CardPokemon';
-import Pagination from '../components/Pagination';
-import { useParams, useLocation } from 'react-router-dom';
-import Loading from '../components/Loading';
-import Breadcrumb from '../components/Breadcrumb';
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import CardPokemon from "../components/CardPokemon";
+import Pagination from "../components/Pagination";
+import { useParams, useLocation } from "react-router-dom";
+import LoadingCard from "../components/LoadingCard";
+import Breadcrumb from "../components/Breadcrumb";
+import GoToTopButton from "../components/GoToTopButton";
 const CategoryPage = () => {
   const [pokemonList, setPokemonList] = useState([]);
   const [count, setCount] = useState(0);
@@ -14,12 +14,15 @@ const CategoryPage = () => {
   const location = useLocation();
   const { pathname } = location;
 
-  const pokemonName = pathname.split('/').length > 3 ? pathname.split('/')[2] : null;
+  const pokemonName =
+    pathname.split("/").length > 3 ? pathname.split("/")[2] : null;
 
   const fetchPokemonByType = async (page, limit) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`https://pokeapi.co/api/v2/type/${type}`);
+      const response = await axios.get(
+        `https://pokeapi.co/api/v2/type/${type}`,
+      );
       const pokemonData = response.data.pokemon;
       const countPokemon = pokemonData.length;
       setCount(countPokemon);
@@ -35,13 +38,13 @@ const CategoryPage = () => {
             name: response.data.name,
             imageUrl: response.data.sprites.front_default,
             url: url,
-            types: response.data.types
+            types: response.data.types,
           };
-        })
+        }),
       );
       setPokemonList(pokemonListData);
     } catch (error) {
-      console.error('Error fetching Pokémon by type:', error);
+      console.error("Error fetching Pokémon by type:", error);
     } finally {
       setIsLoading(false);
     }
@@ -51,40 +54,51 @@ const CategoryPage = () => {
     fetchPokemonByType(1, 20);
   }, [type]);
 
+  useEffect(() => {
+    if (isLoading) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isLoading]);
+
   const capitalizeFirstLetter = (string) => {
-    if (!string) return '';
+    if (!string) return "";
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
   return (
-    <div className="container mx-auto text-center p-4 mb-20 ">
-      <h1 className='font-bold text-2xl justify-center mb-12'>
-  {pokemonName ? (
-    <>
-      Những Pokémon cùng loại{' '}
-      <span className="text-blue-600">
-        {type.toUpperCase()}
-      </span>{' '}
-      như{' '}
-      <span className="text-red-600">
-        {capitalizeFirstLetter(pokemonName)}
-      </span>
-    </>
-  ) : (
-    <>
-      Pokémon thuộc loại{' '}
-      <span className="text-blue-600">
-        {type ? type.toUpperCase() : ''}
-      </span>
-    </>
-  )}
-</h1>
+    <div className="max-w-[1440px] container mx-auto text-center p-4 mb-20">
+      <h1 className="font-bold text-2xl justify-center mb-12">
+        {pokemonName ? (
+          <>
+            Những Pokémon cùng loại{" "}
+            <span className="text-blue-600">{type.toUpperCase()}</span> như{" "}
+            <span className="text-red-600">
+              {capitalizeFirstLetter(pokemonName)}
+            </span>
+          </>
+        ) : (
+          <>
+            Pokémon thuộc loại{" "}
+            <span className="text-blue-600">
+              {type ? type.toUpperCase() : ""}
+            </span>
+          </>
+        )}
+      </h1>
 
-      {isLoading && <Loading />}
       <Breadcrumb />
+      {isLoading && (
+        <div className="grid grid-cols-4 gap-4 max-xl:grid-cols-3 max-lg:grid-cols-2">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <LoadingCard key={index} />
+          ))}
+        </div>
+      )}
       {!isLoading && (
-        <div className="grid grid-cols-4 gap-4">
-          {pokemonList.map(pokemon => (
+        <div className="max-sm:flex max-sm:flex-col grid grid-cols-4 gap-4 max-xl:grid-cols-3 max-lg:grid-cols-2">
+          {pokemonList.map((pokemon) => (
             <CardPokemon
               key={pokemon.name}
               name={pokemon.name}
@@ -100,6 +114,7 @@ const CategoryPage = () => {
         initialPokemonPerPage={20}
         onPageChange={fetchPokemonByType}
       />
+      <GoToTopButton />
     </div>
   );
 };

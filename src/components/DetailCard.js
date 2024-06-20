@@ -1,188 +1,363 @@
-import React, { useState } from 'react';
-import { Radar } from 'react-chartjs-2';
-import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
-import TypeIcon from '../components/TypeIcon';
-import MovesTable from '../components/MovesTable';
-import { FaArrowRight } from 'react-icons/fa';
-import LocationTag from './LocationTag';
+import React, { useState, useEffect, useRef } from "react";
+import { Radar } from "react-chartjs-2";
+import {
+  Chart,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { useSpring, animated } from "react-spring";
+import TypeIcon from "../components/TypeIcon";
+import MovesTable from "../components/MovesTable";
+import MovesCard from "../components/MovesCard";
+import { FaArrowRight, FaArrowDown } from "react-icons/fa";
+import LocationTag from "./LocationTag";
+import { gradientStyles } from "../constants/gradientStyles";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/keyboard";
+import { Navigation, Pagination, Mousewheel, Keyboard } from "swiper/modules";
 
-Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+Chart.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+);
 
-const DetailCard = ({ pokemonData, evolutionData, chartData, handleTypeClick, handleClickLocation, handleClickEvolution, handleMoreInformation }) => {
-  const [showMoreInfo, setShowMoreInfo] = useState({});
+const Accordion = ({ title, isOpen, onClick, children }) => {
+  const contentRef = useRef(null);
+  const [maxHeight, setMaxHeight] = useState(0);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setMaxHeight(isOpen ? contentRef.current.scrollHeight : 0);
+    }
+  }, [isOpen, children]);
+
+  const animation = useSpring({
+    maxHeight,
+    opacity: isOpen ? 1 : 0,
+    overflow: "hidden",
+  });
+
+  return (
+    <div>
+      <h2
+        className="font-bold text-2xl mx-auto w-fit cursor-pointer mb-10 mt-20 max-xl:mt-12 max-sm:mt-6"
+        onClick={onClick}
+      >
+        {title}
+      </h2>
+      <animated.div style={animation}>
+        <div ref={contentRef}>{children}</div>
+      </animated.div>
+    </div>
+  );
+};
+
+const DetailCard = ({
+  pokemonData,
+  evolutionData,
+  chartData,
+  handleTypeClick,
+  handleClickLocation,
+  handleClickEvolution,
+}) => {
+  const [showMoreInfo, setShowMoreInfo] = useState(pokemonData.id);
+  const [openSections, setOpenSections] = useState({ stats: true });
+
+  useEffect(() => {
+    setShowMoreInfo(pokemonData.id);
+  }, [pokemonData.id]);
 
   const capitalizeFirstLetter = (string) => {
-    if (!string) return '';
+    if (!string) return "";
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
-  const toggleMoreInfo = (id, event) => {
-    event.stopPropagation();
-    setShowMoreInfo((prevState) => ({
-      ...prevState,
-      [id]: !prevState[id],
+  const handleClickEvolutionItem = (evolutionName, evolutionId) => {
+    setShowMoreInfo(evolutionId);
+  };
+
+  const handleToggleSection = (section) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
     }));
   };
 
+  const renderPokemonInfo = (pokemon) => (
+    <div
+      className={`mt-2 ${gradientStyles.indigoToPink500} text-white p-10 lg:w-2/3 mx-auto rounded-lg`}
+    >
+      <p>
+        <strong>ID:</strong> {pokemon.id}
+      </p>
+      <p className="my-4">
+        <strong>Name:</strong> {capitalizeFirstLetter(pokemon.name)}
+      </p>
+      <p className="max-sm:text-center">
+        Lorem Ipsum is simply dummy text of the printing and typesetting
+        industry. Lorem Ipsum has been the industry's standard dummy text ever
+        since the 1500s, when an unknown printer took a galley of type and
+        scrambled it to make a type specimen book.
+      </p>
+      <button
+        className="mt-2 p-2 bg-blue-500 text-white rounded"
+        onClick={() => handleClickEvolution(pokemon.name)}
+      >
+        More information
+      </button>
+    </div>
+  );
+
   return (
-    <div className="bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 rounded-md max-w-[1440px] p-9 mx-auto">
-        <h1 className='text-3xl font-bold text-purple-600 w-fit mx-auto mb-12'>{pokemonData.name.toUpperCase()}</h1>
-    
-        <div className='flex '> 
-            <div className='flex items-center rounded-lg bg-gray-400 w-1/3'>
-            <img
+    <div className="max-w-[1440px] mx-auto p-9 max-sm:p-6 max-xl:p-8">
+      <div className="flex items-center">
+        <p className="text-3xl font-bold text-purple-600 text-left">
+          {pokemonData.name.toUpperCase()}
+        </p>
+        <div className="rounded-lg w-1/3 max-xl:w-full mb-12 ">
+          <img
             src={pokemonData.imageUrl}
             alt={pokemonData.name}
-            className="w-96 h-96 mx-auto my-auto"
+            className="w-96 h-96 max-sm:w-1/2 max-sm:h-1/2"
             onError={(e) => {
-            e.target.src = 'https://via.placeholder.com/200';
+              e.target.src = "https://via.placeholder.com/200";
             }}
-            />
+          />
         </div>
-        <div className='w-2/3 flex-col'>
-            <p className="text-left text-2xl font-bold w-fit mx-auto text-red-600">Chỉ số</p>
-            <table className="table-auto border-collapse w-min mx-auto mt-2 ">
-            <thead>
-              <tr>
-                {pokemonData.stats.map((stat) => (
-                  <th key={stat.stat.name} className="border border-black px-4 py-2 text-2xl">
-                    {capitalizeFirstLetter(stat.stat.name)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {pokemonData.stats.map((stat) => (
-                  <td key={stat.stat.name} className="border border-black px-4 py-2 text-3xl text-red-600 font-bold">
-                    {stat.base_stat}
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
+      </div>
 
-          {chartData && (
-          <div className="mt-10 mx-auto h-full">
-            <Radar
-              data={chartData}
-              options={{
-                scales: {
-                  r: {
-                    angleLines: {
-                      display: true,
-                    },
-                    suggestedMin: 0,
-                    suggestedMax: 100,
-                  },
-                },
-                plugins: {
-                  tooltip: {
-                    callbacks: {
-                      label: function (context) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                          label += ': ';
-                        }
-                        label += Math.round(context.raw * 100) / 100;
-                        return label;
+      <div
+        className={`${gradientStyles.indigoToPink100} to-pink-100 rounded-md py-10 px-2 mx-auto`}
+      >
+        <div className="w-2/3 mx-auto max-xl:w-full flex-col mb-10">
+          <Accordion
+            title="Chỉ số"
+            isOpen={openSections.stats}
+            onClick={() => handleToggleSection("stats")}
+          >
+            {chartData && (
+              <div className=" mx-auto w-2/3 max-sm:w-full max-sm:h-full max-2xl:flex justify-center mb-10">
+                <Radar
+                  data={chartData}
+                  options={{
+                    scales: {
+                      r: {
+                        angleLines: {
+                          display: true,
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100,
                       },
                     },
-                    titleFont: {
-                      size: 20,
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          beforeLabel: function (context) {
+                            let datasetIndex = context.datasetIndex;
+                            let datasetLabel =
+                              context.chart.data.datasets[datasetIndex].label;
+                            let labels = context.chart.data.labels;
+                            let data =
+                              context.chart.data.datasets[datasetIndex].data;
+                            let label = `Pokemon: ${datasetLabel}\n`;
+                            label += `HP: ${data[labels.indexOf("Hp")]}\n`;
+                            label += `Attack: ${data[labels.indexOf("Attack")]}\n`;
+                            label += `Defense: ${data[labels.indexOf("Defense")]}\n`;
+                            label += `Special-attack: ${data[labels.indexOf("Special-attack")]}\n`;
+                            label += `Special-defense: ${data[labels.indexOf("Special-defense")]}\n`;
+                            label += `Speed: ${data[labels.indexOf("Speed")]}`;
+                            return label;
+                          },
+                          label: function () {
+                            return "";
+                          },
+                        },
+                        titleFont: {
+                          size: 20,
+                        },
+                        bodyFont: {
+                          size: 20,
+                        },
+                        padding: 20,
+                        boxPadding: 5,
+                        usePointStyle: true,
+                      },
                     },
-                    bodyFont: {
-                      size: 20,
-                    },
-                    padding: 20,
-                    boxPadding: 5,
-                    usePointStyle: true,
-                  },
-                },
-              }}
-            />
-          </div>
-        )}
+                  }}
+                />
+              </div>
+            )}
+          </Accordion>
         </div>
-        </div>
-      
+
         {pokemonData.moves.length > 0 && (
-          <div className="mt-10">
-            <h2 className=" font-bold text-2xl mx-auto w-fit mb-4 text-blue-600">Chiêu thức</h2>
-            <MovesTable data={pokemonData.moves} />
-            
-          </div>
+          <Accordion
+            title="Chiêu thức"
+            isOpen={openSections.moves}
+            onClick={() => handleToggleSection("moves")}
+            className="mt-20 max-xl:mt-12 max-sm:mt-6"
+          >
+            <div className="">
+              <MovesCard data={pokemonData.moves} />
+              <MovesTable data={pokemonData.moves} />
+            </div>
+          </Accordion>
         )}
-    <p className="font-bold text-2xl w-fit mx-auto text-green-600 mt-12">Tiến hóa</p>
-    {evolutionData.length > 0 && (
-        
-          <div className="flex my-12 justify-b mx-auto">
-            
-            {evolutionData.map((evolution, index) => (
-              <div key={evolution.id} className="flex w-full flex-col justify-between items-center cursor-pointer">
-                <div key={evolution.id} className="flex w-full justify-between items-center cursor-pointer">
-                <div onClick={() => handleClickEvolution(evolution.name)}>
-                  <img
-                    src={evolution.imageUrl}
-                    alt={evolution.name}
-                    className="w-96 h-96 mx-auto"
-                  />
-                  <p className="text-pink-600 text-xl font-bold">{capitalizeFirstLetter(evolution.name)}</p>
-                  <button
-                  className="mt-2 p-2 bg-blue-500 text-white rounded"
-                  onClick={(event) => toggleMoreInfo(evolution.id, event)}
-                >
-                  More information
-                </button>
-                {showMoreInfo[evolution.id] && (
-                  <div className="mt-2 p-2 bg-gray-200 rounded w-fit mx-auto">
-                    <p><strong>ID:</strong> {evolution.id}</p>
-                    <p><strong>Name:</strong> {capitalizeFirstLetter(evolution.name)}</p>
-                    <p><strong>Weight:</strong> {evolution.weight}</p>
-                    <p><strong>Height:</strong> {evolution.height}</p>
+
+        {evolutionData.length > 0 && (
+          <Accordion
+            title="Tiến hóa"
+            isOpen={openSections.evolution}
+            onClick={() => handleToggleSection("evolution")}
+          >
+            <div className="max-lg:hidden">
+              <div className="container max-sm:flex-col flex justify-between mx-auto mb-10">
+                {evolutionData.map((evolution, index) => (
+                  <div
+                    key={evolution.id}
+                    className="flex w-full flex-col justify-between items-center cursor-pointer"
+                    onClick={() =>
+                      handleClickEvolutionItem(evolution.name, evolution.id)
+                    }
+                  >
+                    <div className="flex w-full justify-between items-center cursor-pointer">
+                      <div className="text-center">
+                        <img
+                          src={evolution.imageUrl}
+                          alt={evolution.name}
+                          className="sm:w-96 sm:h-96 mx-auto"
+                        />
+                        <p className="text-pink-600 text-xl font-bold">
+                          {capitalizeFirstLetter(evolution.name)}
+                          {evolution.id === showMoreInfo && (
+                            <FaArrowDown className="inline-block ml-4 text-gray-500" />
+                          )}
+                        </p>
+                      </div>
+
+                      {index < evolutionData.length - 1 && (
+                        <FaArrowRight className="text-2xl mx-2 mb-5 text-gray-500 " />
+                      )}
+                    </div>
                   </div>
-                )}
-                </div>
-                {index < evolutionData.length - 1 && <FaArrowRight className="text-2xl mx-2 mb-5 text-gray-500" />}
+                ))}
               </div>
-                
-               
-              </div>
-            ))}
-          </div>
-          
+              {renderPokemonInfo(
+                evolutionData.find(
+                  (evolution) => evolution.id === showMoreInfo,
+                ) || pokemonData,
+              )}
+            </div>
+
+            <div className="lg:hidden ">
+              <Swiper
+                modules={[Navigation, Pagination, Mousewheel, Keyboard]}
+                navigation={true}
+                pagination={{ clickable: true }}
+                mousewheel={true}
+                keyboard={true}
+                className="mySwiper "
+              >
+                {evolutionData.map((evolution) => (
+                  <SwiperSlide key={evolution.id}>
+                    <div
+                      className="flex flex-col justify-between py-10 items-center cursor-pointer w-2/3 mx-auto"
+                      onClick={() =>
+                        handleClickEvolutionItem(evolution.name, evolution.id)
+                      }
+                    >
+                      <div className="text-center">
+                        <img
+                          src={evolution.imageUrl}
+                          alt={evolution.name}
+                          className="w-48 h-48 mx-auto"
+                        />
+                        <p className="text-pink-600 text-xl font-bold">
+                          {capitalizeFirstLetter(evolution.name)}
+                        </p>
+                      </div>
+                      {renderPokemonInfo(evolution)}
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          </Accordion>
         )}
 
+        <Accordion
+          title="Những thông tin khác"
+          isOpen={openSections.other}
+          onClick={() => handleToggleSection("other")}
+        >
+          <div className="p-10">
+            <p className="font-bold text-xl text-left mr-1 mb-5">
+              Khả năng đặc biệt:
+            </p>
+            <div className={`text-white flex flex-col gap-5 w-fit mx-auto`}>
+              {pokemonData.abilities.map((ability, index) => (
+                <div
+                  key={ability.id}
+                  className={`${gradientStyles.indigoToPink500} border p-4 rounded-lg shadow-lg`}
+                >
+                  <p>
+                    <strong>STT:</strong> {index + 1}
+                  </p>
+                  <p>
+                    <strong>ID:</strong> {ability.id}
+                  </p>
+                  <p>
+                    <strong>Tên:</strong> {ability.name}
+                  </p>
+                  <p>
+                    <strong>Hiệu ứng:</strong> {ability.effect}
+                  </p>
+                  <p>
+                    <strong>Thế hệ:</strong> {ability.generation}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-10">
+              <div className="flex max-sm:flex-col gap-4">
+                <p className="font-bold text-xl text-left cursor-pointer flex max-sm:flex-col items-center">
+                  Hệ:
+                </p>
+                <div className="flex max-sm:flex-col items-center my-4">
+                  {pokemonData.types.map((type) => (
+                    <TypeIcon
+                      key={type.type.name}
+                      type={type.type.name}
+                      onClick={() => handleTypeClick(type.type.name)}
+                    >
+                      {type.type.name}
+                    </TypeIcon>
+                  ))}
+                </div>
+              </div>
 
-        <h2 className='font-bold text-2xl w-fit mx-auto text-orange-600 my-12'>Những thông tin khác</h2>
-        <div className="flex flex-wrap">
-          <p className="font-bold text-xl mr-1">Khả năng đặc biệt: </p>
-          <p className="text-blue-600 text-xl font-bold items-start mr-3 text-justify">
-            {pokemonData.abilities.join(', ')}
-          </p>
-        </div>
-
-        <div className="flex items-center my-4">
-          <p className="font-bold text-xl mr-1 ">Hệ:</p>
-          {pokemonData.types.map((type) => (
-            <TypeIcon
-              key={type.type.name}
-              type={type.type.name}
-              onClick={() => handleTypeClick(type.type.name)}
-            >
-              {type.type.name}
-            </TypeIcon>
-          ))}
-        </div>
-
-        <p className="text-xl font-bold text-left cursor-pointer flex items-center">
-          Có thể gặp ở:
-          <LocationTag
-            location={pokemonData.locations}
-            onClick={() => handleClickLocation(pokemonData.locations)}
-          />
-        </p>
-        
+              <p className="font-bold text-xl text-left cursor-pointer flex max-sm:flex-col items-center gap-4">
+                Có thể gặp ở:
+                <LocationTag
+                  location={pokemonData.locations}
+                  onClick={() => handleClickLocation(pokemonData.locations)}
+                />
+              </p>
+            </div>
+          </div>
+        </Accordion>
+      </div>
     </div>
   );
 };
